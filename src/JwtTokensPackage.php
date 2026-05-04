@@ -2,12 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Medas\Placeholder;
+namespace Medas\JwtTokens;
 
-use Medas\Core\AsSingleton;
-use Medas\ServiceManager\BasePackage;
+use Medas\Core\{AsSingleton, BasePackage};
 
-class PlaceholderPackage extends BasePackage
+class JwtTokensPackage extends BasePackage
 {
     use AsSingleton;
 
