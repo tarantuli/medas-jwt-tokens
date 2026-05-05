@@ -12,6 +12,7 @@ use Medas\Core\{
     Interfaces\AuthenticationTokenController,
     Interfaces\CacheManager
 };
+use Medas\Json\JsonEncoder;
 use Medas\ObjectToArraySerializer\ObjectToArraySerializer;
 
 #[Service]
@@ -25,6 +26,7 @@ readonly class JwtAuthTokenController implements AuthenticationTokenController
         private string                  $algorithm,
         private ObjectToArraySerializer $serializer,
         private CacheManager            $cacheManager,
+        private JsonEncoder             $jsonEncoder,
     )
     {
     }
@@ -32,7 +34,7 @@ readonly class JwtAuthTokenController implements AuthenticationTokenController
     public function create(AuthenticationData $data): string
     {
         $payload = [
-            'data' => $this->serializer->serialize($data),
+            'data' => $this->jsonEncoder->encode($this->serializer->serialize($data)),
             'class' => $data::class,
         ];
 
@@ -46,10 +48,14 @@ readonly class JwtAuthTokenController implements AuthenticationTokenController
 
     public function data(string $token): AuthenticationData|null
     {
-        return $this->cacheManager->get('memory')->get(
-            'jwt-tokens:data:' . sha1($token),
-            fn() => $this->decode($token)
-        );
+        try {
+            $cache = $this->cacheManager->get('memory');
+        }
+        catch (\Exception) {
+            return $this->decode($token);
+        }
+
+        return $cache->get('jwt-tokens:data:' . sha1($token), fn() => $this->decode($token));
     }
 
     private function decode(string $token): AuthenticationData|null
@@ -69,8 +75,7 @@ readonly class JwtAuthTokenController implements AuthenticationTokenController
             return null;
         }
 
-        // Cast stdClass object to array so the ObjectToArraySerializer can unserialize it.
-        $data = json_decode(json_encode($payload->data), true);
+        $data = $this->jsonEncoder->decode($payload->data);
 
         if ($data === null) {
             return null;
