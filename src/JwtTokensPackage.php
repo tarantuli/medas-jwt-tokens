@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Medas\JwtTokens;
 
 use Medas\Core\{AsSingleton, BasePackage};
+use Medas\ObjectToArraySerializer\ObjectToArraySerializerPackage;
 
 class JwtTokensPackage extends BasePackage
 {
@@ -12,7 +13,9 @@ class JwtTokensPackage extends BasePackage
 
     public function dependencies(): array
     {
-        return [];
+        return [
+            ObjectToArraySerializerPackage::instance(),
+        ];
     }
 
     public function sourceDirectory(): string
