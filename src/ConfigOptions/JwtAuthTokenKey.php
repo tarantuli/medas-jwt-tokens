@@ -4,10 +4,15 @@ declare(strict_types=1);
 
 namespace Medas\JwtTokens\ConfigOptions;
 
-use Medas\Core\{Attributes\Service, Interfaces\ConfigGroup, Interfaces\ConfigOption};
+use Medas\Core\{
+    Attributes\Service,
+    Interfaces\ConfigGroup,
+    Interfaces\ConfigOption,
+    Interfaces\IsSensitive
+};
 
 #[Service]
-readonly class JwtAuthTokenKey implements ConfigOption
+readonly class JwtAuthTokenKey implements ConfigOption, IsSensitive
 {
     public function __construct(
         private JwtTokensGroup $group,
